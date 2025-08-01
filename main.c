@@ -46,12 +46,74 @@ int run(int cellcount, const char *filename)
 
     fread(prog, 1, fileLength, file);
     fclose(file);
-
-    // execution logic
+    file = NULL;
     
     int iData = 0;
-    uint8_t *cells = malloc((size_t)cellcount);
-    memset(cells, 0, cellcount);
+    int *cells = malloc((size_t)cellcount * sizeof(int));
+    memset(cells, 0, cellcount * sizeof(int));
+
+    // execution logic
+
+    
+    while (iProg < fileLength)
+    {
+        const char instruction = prog[iProg++];
+        switch (instruction)
+        {
+        case '>':
+            ++iData;
+            if (iData >= cellcount) iData = cellcount -1;
+            break;
+        case '<':
+            --iData;
+            if (iData < 0) iData = 0;
+            break;
+        case '+':
+            cells[iData] = cells[iData] + 1;
+            break;
+        case '-':
+            cells[iData] = cells[iData] - 1;
+            break;
+        case '.':
+            putchar(cells[iData]);
+            break;
+        case ',':
+            cells[iData] = getchar();
+            break;
+        case '[':
+            if(cells[iData] == 0) 
+            {
+                int openCount = 1;
+                while (openCount > 0)
+                {
+                    if (iProg >= fileLength - 1) break;
+                    switch (prog[++iProg])
+                    {
+                    case '[': ++openCount; break;
+                    case ']': --openCount; break;
+                    default: break;
+                    }
+                }
+            }
+            break;
+        case ']':
+            if (cells[iData] == 0) break;
+            int closedCount = 1;
+            while (closedCount > 0)
+            {
+                if (iProg == 1) return -4;
+                switch (prog[(--iProg) - 1])
+                {
+                case ']': ++closedCount; break;
+                case '[': --closedCount; break;
+                default: break;
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
 
     free(prog);
     free(cells);
