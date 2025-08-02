@@ -15,13 +15,13 @@ void print_help(void)
         "-h:       Show this help.\n"
         "-c <num>: Specify cellcount.\n";
 
-    printf(message);
+    puts(message);
 }
 
 int run(int cellcount, const char *filename)
 {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL)
+    FILE *file;
+    if (fopen_s(&file, filename, "r"))
     {   
         printf("Error reading file %s.\n", filename);
         return -1;
@@ -53,8 +53,6 @@ int run(int cellcount, const char *filename)
     memset(cells, 0, cellcount * sizeof(int));
 
     // execution logic
-
-    
     while (iProg < fileLength)
     {
         const char instruction = prog[iProg++];
